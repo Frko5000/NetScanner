@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NetScanner</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Outfit:wght@300;600;800&display=swap');
+
+        :root {
+            --bg:      #080d14;
+            --surface: rgba(15, 25, 40, 0.85);
+            --border:  rgba(0, 255, 180, 0.12);
+            --accent:  #00ffb4;
+            --accent2: #0ea5e9;
+            --muted:   #334155;
+            --text:    #e2f4ff;
+            --dim:     #4a6580;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+            padding: 32px 24px;
+            background-image:
+                linear-gradient(rgba(0,255,180,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,255,180,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        header { text-align: center; margin-bottom: 40px; }
+        header h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 36px;
+            flex-wrap: wrap;
+        }
+
+        .scan-btn {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.95rem;
+            padding: 10px 28px;
+            border-radius: 8px;
+            cursor: pointer;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+        .scan-btn:hover:not(:disabled) {
+            background: rgba(0,255,180,0.08);
+            box-shadow: 0 0 20px rgba(0,255,180,0.2);
+        }
+        .scan-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .status-bar { font-family: 'Share Tech Mono', monospace; font-size: 0.8rem; color: var(--dim); }
+        .status-bar span { color: var(--accent); }
+
+        .scanning-indicator {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--accent);
+        }
+        .scanning-indicator.active { display: flex; }
+        .pulse-ring {
+            width: 12px; height: 12px;
+            border-radius: 50%;
+            background: var(--accent);
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%       { opacity: 0.3; transform: scale(0.7); }
+        }
+
+        .summary {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+        .summary-item { text-align: center; }
+        .summary-item .num { font-size: 2rem; font-weight: 800; color: var(--accent); display: block; }
+        .summary-item .label { font-size: 0.75rem; color: var(--dim); text-transform: uppercase; letter-spacing: 1px; }
+
+        .device-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 16px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .device-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            backdrop-filter: blur(12px);
+            transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+            animation: fadeIn 0.4s ease both;
+        }
+        .device-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(0,255,180,0.35);
+            box-shadow: 0 8px 30px rgba(0,255,180,0.08);
+        }
+        .device-card.self-device { border-color: rgba(14,165,233,0.35); }
+        .device-card.self-device:hover {
+            border-color: rgba(14,165,233,0.6);
+            box-shadow: 0 8px 30px rgba(14,165,233,0.1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 14px;
+        }
+        .device-icon { font-size: 1.8rem; }
+        .badges { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+
+        .self-badge {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.62rem;
+            background: rgba(14,165,233,0.15);
+            color: var(--accent2);
+            border: 1px solid rgba(14,165,233,0.3);
+            padding: 2px 8px;
+            border-radius: 20px;
+            letter-spacing: 1px;
+        }
+        .type-badge {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.62rem;
+            background: rgba(0,255,180,0.08);
+            color: var(--accent);
+            border: 1px solid rgba(0,255,180,0.2);
+            padding: 2px 8px;
+            border-radius: 20px;
+            letter-spacing: 0.5px;
+        }
+
+        .device-ip {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 4px;
+        }
+        .device-hostname {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.82rem;
+            color: var(--accent2);
+            margin-bottom: 6px;
+            min-height: 1.1em;
+        }
+        .device-mac   { font-family: 'Share Tech Mono', monospace; font-size: 0.72rem; color: var(--dim); margin-bottom: 4px; }
+        .device-vendor { font-size: 0.8rem; color: #64748b; }
+
+        .open-ports {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .port-pill {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.6rem;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: #64748b;
+            padding: 1px 7px;
+            border-radius: 12px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--dim);
+            font-family: 'Share Tech Mono', monospace;
+            display: none;
+        }
+        .empty-state.visible { display: block; }
+        .empty-state p { margin-top: 12px; font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>NetScanner</h1>
+</header>
+
+<div class="controls">
+    <button class="scan-btn" id="scanBtn" onclick="startScan()">⟳ Scan Network</button>
+    <div class="scanning-indicator" id="scanningIndicator">
+        <div class="pulse-ring"></div>
+        <span id="scanningText">Scanning subnet...</span>
+    </div>
+    <div class="status-bar" id="statusBar">Ready</div>
+</div>
+
+<div class="summary" id="summary" style="display:none">
+    <div class="summary-item">
+        <span class="num" id="totalCount">0</span>
+        <span class="label">Devices Found</span>
+    </div>
+    <div class="summary-item">
+        <span class="num" id="lastScanTime">—</span>
+        <span class="label">Last Scan</span>
+    </div>
+    <div class="summary-item">
+        <span class="num" id="ownIp">—</span>
+        <span class="label">Your IP</span>
+    </div>
+</div>
+
+<div class="device-grid" id="deviceGrid"></div>
+<div class="empty-state" id="emptyState">
+    <div style="font-size:2rem">📡</div>
+    <p>No devices found. Try scanning again.</p>
+</div>
+
+<script>
+    let polling = null;
+
+    const TYPE_ICONS = {
+        'Router':          '🔀',
+        'Printer':         '🖨️',
+        'Smart TV':        '📺',
+        'Apple TV':        '📺',
+        'iPhone/iPad':     '📱',
+        'Apple Device':    '🍎',
+        'Mac':             '💻',
+        'Android Phone':   '📱',
+        'Gaming Console':  '🎮',
+        'Virtual Machine': '🖥️',
+        'PC/Laptop':       '💻',
+        'Server':          '🗄️',
+        'Raspberry Pi':    '🥧',
+        'Amazon Device':   '🔵',
+        'Google Device':   '🔴',
+        'Smart Light':     '💡',
+        'IoT Device':      '⚙️',
+        'Unknown':         '🔌',
+    };
+
+    function getIcon(deviceType, vendor, isSelf) {
+        if (isSelf) return '💻';
+        if (deviceType && TYPE_ICONS[deviceType]) return TYPE_ICONS[deviceType];
+        const v = (vendor || '').toLowerCase();
+        if (v.includes('apple'))     return '🍎';
+        if (v.includes('samsung'))   return '📱';
+        if (v.includes('raspberry')) return '🥧';
+        if (v.includes('cisco'))     return '🔀';
+        if (v.includes('ubiquiti'))  return '📡';
+        return '🔌';
+    }
+
+    function renderDevices(devices) {
+        const grid  = document.getElementById('deviceGrid');
+        const empty = document.getElementById('emptyState');
+        grid.innerHTML = '';
+
+        if (!devices.length) {
+            empty.classList.add('visible');
+            return;
+        }
+        empty.classList.remove('visible');
+
+        devices.forEach((d, i) => {
+            const card = document.createElement('div');
+            card.className = 'device-card' + (d.self ? ' self-device' : '');
+            card.style.animationDelay = `${i * 60}ms`;
+
+            const portPills = (d.openHints || [])
+                .map(h => `<span class="port-pill">${h}</span>`)
+                .join('');
+
+            card.innerHTML = `
+                <div class="card-top">
+                    <span class="device-icon">${getIcon(d.deviceType, d.vendor, d.self)}</span>
+                    <div class="badges">
+                        ${d.deviceType ? `<span class="type-badge">${d.deviceType}</span>` : ''}
+                        ${d.self ? '<span class="self-badge">THIS DEVICE</span>' : ''}
+                    </div>
+                </div>
+                <div class="device-ip">${d.ip}</div>
+                <div class="device-hostname">${d.hostname ? d.hostname : '<span style="color:var(--muted);font-size:0.72rem">no hostname</span>'}</div>
+                <div class="device-mac">${d.mac}</div>
+                <div class="device-vendor">${d.vendor}</div>
+                ${portPills ? `<div class="open-ports">${portPills}</div>` : ''}
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    async function pollStatus() {
+        try {
+            const res  = await fetch('http://localhost:3000/status');
+            const data = await res.json();
+
+            if (data.status === 'scanning') {
+                document.getElementById('scanningText').innerText = 'Scanning + enriching… (~30s)';
+                return;
+            }
+
+            clearInterval(polling);
+            polling = null;
+
+            document.getElementById('scanBtn').disabled = false;
+            document.getElementById('scanningIndicator').classList.remove('active');
+            document.getElementById('statusBar').innerHTML = `Last scan: <span>${data.lastScan}</span>`;
+
+            const summary = document.getElementById('summary');
+            summary.style.display = 'flex';
+            document.getElementById('totalCount').innerText  = data.devices.length;
+            document.getElementById('lastScanTime').innerText = data.lastScan || '—';
+            document.getElementById('ownIp').innerText        = data.ownIp   || '—';
+
+            renderDevices(data.devices);
+        } catch {
+            document.getElementById('statusBar').innerText = 'Connection lost';
+        }
+    }
+
+    async function startScan() {
+        document.getElementById('scanBtn').disabled = true;
+        document.getElementById('scanningIndicator').classList.add('active');
+        document.getElementById('scanningText').innerText = 'Starting scan...';
+        document.getElementById('statusBar').innerText = '';
+        document.getElementById('deviceGrid').innerHTML = '';
+        document.getElementById('summary').style.display = 'none';
+
+        try {
+            await fetch('http://localhost:3000/scan');
+        } catch {
+            document.getElementById('statusBar').innerText = 'Could not reach server';
+            document.getElementById('scanBtn').disabled = false;
+            return;
+        }
+
+        if (polling) clearInterval(polling);
+        polling = setInterval(pollStatus, 2000);
+    }
+</script>
+</body>
+</html>
