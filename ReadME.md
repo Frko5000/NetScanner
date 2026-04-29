@@ -9,6 +9,8 @@ netscanner is a local network scanner built with node.js and vanilla js. pings y
 * port probing to identify device roles (ssh, http, airplay, rdp etc).
 * smart device classification — router, phone, printer, server, iot and more.
 * clean dark ui with live scan status.
+* click any device card for a detailed modal — latency meter, open services, copy buttons.
+* per-device personal notes saved to localstorage.
 
 ## 🛠️ tech stack
 
@@ -31,5 +33,6 @@ node server.js
 * needs to run on the same machine as your network interface.
 * some devices wont appear if they block icmp pings.
 * port probing is passive — only attempts a tcp handshake, nothing more.
+* latency shown in the modal is round-trip to the local server, not raw icmp — close enough.
 
 claude is love :3
