@@ -210,6 +210,165 @@
         }
         .empty-state.visible { display: block; }
         .empty-state p { margin-top: 12px; font-size: 0.85rem; }
+
+        /* ── Modal Overlay ── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(4, 8, 16, 0.85);
+            backdrop-filter: blur(6px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-overlay.open { display: flex; }
+
+        .modal {
+            background: #0b1520;
+            border: 1px solid rgba(0,255,180,0.2);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 520px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 0 60px rgba(0,255,180,0.08), 0 24px 80px rgba(0,0,0,0.6);
+            animation: modalIn 0.25s cubic-bezier(0.34,1.56,0.64,1) both;
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.92) translateY(16px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 22px 24px 16px;
+            border-bottom: 1px solid rgba(0,255,180,0.08);
+        }
+        .modal-title-row { display: flex; align-items: center; gap: 14px; }
+        .modal-icon { font-size: 2rem; }
+        .modal-title { font-size: 1.3rem; font-weight: 800; color: var(--accent); font-family: 'Share Tech Mono', monospace; }
+        .modal-subtitle { font-size: 0.78rem; color: var(--dim); margin-top: 2px; }
+        .modal-close {
+            background: none; border: none; color: var(--dim);
+            font-size: 1.4rem; cursor: pointer; padding: 4px 8px;
+            border-radius: 6px; transition: color 0.2s, background 0.2s;
+            line-height: 1;
+        }
+        .modal-close:hover { color: var(--accent); background: rgba(0,255,180,0.07); }
+
+        .modal-body { padding: 20px 24px 24px; }
+
+        .modal-section { margin-bottom: 20px; }
+        .modal-section-title {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--dim);
+            margin-bottom: 10px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .info-row {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 10px;
+            padding: 10px 12px;
+        }
+        .info-row.full { grid-column: span 2; }
+        .info-label { font-size: 0.65rem; color: var(--dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+        .info-value {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.88rem;
+            color: var(--text);
+            word-break: break-all;
+        }
+        .info-value.accent { color: var(--accent); }
+        .info-value.accent2 { color: var(--accent2); }
+
+        .copy-btn {
+            background: none; border: none;
+            color: var(--dim); cursor: pointer;
+            font-size: 0.75rem; padding: 2px 6px;
+            border-radius: 4px; transition: color 0.2s;
+            vertical-align: middle; margin-left: 4px;
+        }
+        .copy-btn:hover { color: var(--accent); }
+
+        /* Latency bar */
+        .latency-bar-wrap { margin-top: 6px; }
+        .latency-bar-bg {
+            height: 4px; background: rgba(255,255,255,0.06);
+            border-radius: 4px; overflow: hidden;
+        }
+        .latency-bar-fill {
+            height: 100%; border-radius: 4px;
+            transition: width 0.6s ease;
+        }
+        .latency-label { font-size: 0.7rem; color: var(--dim); margin-top: 4px; }
+
+        /* Port pills in modal */
+        .modal-ports { display: flex; flex-wrap: wrap; gap: 6px; }
+        .modal-port-pill {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.72rem;
+            background: rgba(0,255,180,0.06);
+            border: 1px solid rgba(0,255,180,0.18);
+            color: var(--accent);
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: flex; align-items: center; gap: 5px;
+        }
+        .modal-port-pill .port-dot {
+            width: 5px; height: 5px; border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 4px var(--accent);
+        }
+        .no-ports { font-family: 'Share Tech Mono', monospace; font-size: 0.8rem; color: var(--dim); }
+
+        /* Note textarea */
+        .note-textarea {
+            width: 100%;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            color: var(--text);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.82rem;
+            padding: 10px 12px;
+            resize: vertical;
+            min-height: 72px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .note-textarea:focus { border-color: rgba(0,255,180,0.35); }
+        .note-save-btn {
+            margin-top: 8px;
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            padding: 6px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+        }
+        .note-save-btn:hover { background: rgba(0,255,180,0.08); }
+        .note-saved-msg { font-size: 0.72rem; color: var(--accent); margin-left: 10px; opacity: 0; transition: opacity 0.3s; }
+        .note-saved-msg.show { opacity: 1; }
+
+        /* Badges in modal */
+        .modal-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
     </style>
 </head>
 <body>
@@ -248,8 +407,91 @@
     <p>No devices found. Try scanning again.</p>
 </div>
 
+<!-- ── Device Detail Modal ── -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+    <div class="modal" id="modalBox">
+        <div class="modal-header">
+            <div class="modal-title-row">
+                <span class="modal-icon" id="mIcon">🔌</span>
+                <div>
+                    <div class="modal-title" id="mIp">—</div>
+                    <div class="modal-subtitle" id="mSubtitle">—</div>
+                </div>
+            </div>
+            <button class="modal-close" onclick="closeModalDirect()">✕</button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-badges" id="mBadges"></div>
+            <div class="modal-section" style="margin-top:16px">
+                <div class="modal-section-title">Identity</div>
+                <div class="info-grid">
+                    <div class="info-row">
+                        <div class="info-label">IP Address</div>
+                        <div class="info-value accent" id="mIpVal">—<button class="copy-btn" onclick="copyText('mIpVal')" title="Copy">⎘</button></div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">Device Type</div>
+                        <div class="info-value" id="mType">—</div>
+                    </div>
+                    <div class="info-row full">
+                        <div class="info-label">Hostname</div>
+                        <div class="info-value accent2" id="mHostname">—</div>
+                    </div>
+                    <div class="info-row full">
+                        <div class="info-label">MAC Address</div>
+                        <div class="info-value" id="mMac">—<button class="copy-btn" onclick="copyText('mMacVal')" title="Copy">⎘</button></div>
+                    </div>
+                    <div class="info-row full">
+                        <div class="info-label">Vendor / Manufacturer</div>
+                        <div class="info-value" id="mVendor">—</div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-section">
+                <div class="modal-section-title">Network Latency</div>
+                <div class="info-row">
+                    <div class="info-value accent" id="mLatencyVal">Measuring...</div>
+                    <div class="latency-bar-wrap">
+                        <div class="latency-bar-bg">
+                            <div class="latency-bar-fill" id="mLatencyBar" style="width:0%"></div>
+                        </div>
+                        <div class="latency-label" id="mLatencyLabel"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-section">
+                <div class="modal-section-title">Detected Services / Open Ports</div>
+                <div class="modal-ports" id="mPorts"></div>
+            </div>
+            <div class="modal-section">
+                <div class="modal-section-title">Personal Note</div>
+                <textarea class="note-textarea" id="mNoteInput" placeholder="e.g. Living room TV, Dad's laptop..."></textarea>
+                <div style="display:flex;align-items:center;margin-top:6px">
+                    <button class="note-save-btn" onclick="saveNote()">Save Note</button>
+                    <span class="note-saved-msg" id="noteSavedMsg">✓ Saved</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     let polling = null;
+    let currentModalIp = null;
+
+    const PORT_LABELS = {
+        'http': { label: 'HTTP :80', color: '#38bdf8' },
+        'https': { label: 'HTTPS :443', color: '#34d399' },
+        'ssh': { label: 'SSH :22', color: '#f59e0b' },
+        'telnet': { label: 'Telnet :23', color: '#f87171' },
+        'ios': { label: 'iOS :62078', color: '#a78bfa' },
+        'airplay': { label: 'AirPlay :7000', color: '#fb923c' },
+        'printer': { label: 'Printer', color: '#64748b' },
+        'rdp': { label: 'RDP :3389', color: '#e879f9' },
+        'vnc': { label: 'VNC :5900', color: '#f472b6' },
+        'mqtt': { label: 'MQTT :1883', color: '#4ade80' },
+        'coap': { label: 'CoAP :5683', color: '#22d3ee' },
+    };
 
     const TYPE_ICONS = {
         'Router':          '🔀',
@@ -299,6 +541,8 @@
             const card = document.createElement('div');
             card.className = 'device-card' + (d.self ? ' self-device' : '');
             card.style.animationDelay = `${i * 60}ms`;
+            card.style.cursor = 'pointer';
+            card.addEventListener('click', () => openModal(d));
 
             const portPills = (d.openHints || [])
                 .map(h => `<span class="port-pill">${h}</span>`)
@@ -320,6 +564,108 @@
             `;
             grid.appendChild(card);
         });
+    }
+
+    // ── Modal ──────────────────────────────────────────────
+    function openModal(device) {
+        currentModalIp = device.ip;
+
+        document.getElementById('mIcon').textContent = getIcon(device.deviceType, device.vendor, device.self);
+        document.getElementById('mIp').textContent   = device.ip;
+        document.getElementById('mSubtitle').textContent = device.hostname || 'No hostname resolved';
+        document.getElementById('mIpVal').childNodes[0].textContent = device.ip;
+        document.getElementById('mType').textContent = device.deviceType || 'Unknown';
+        document.getElementById('mHostname').textContent = device.hostname || '—';
+        document.getElementById('mMac').childNodes[0].textContent = device.mac;
+        document.getElementById('mVendor').textContent = device.vendor || 'Unknown';
+
+        // Badges
+        const badgesEl = document.getElementById('mBadges');
+        badgesEl.innerHTML = '';
+        if (device.self) badgesEl.innerHTML += '<span class="self-badge">THIS DEVICE</span>';
+        if (device.deviceType) badgesEl.innerHTML += `<span class="type-badge">${device.deviceType}</span>`;
+
+        // Ports
+        const portsEl = document.getElementById('mPorts');
+        if (device.openHints && device.openHints.length) {
+            const seen = new Set();
+            portsEl.innerHTML = device.openHints
+                .filter(h => { if (seen.has(h)) return false; seen.add(h); return true; })
+                .map(h => {
+                    const p = PORT_LABELS[h] || { label: h, color: '#64748b' };
+                    return `<span class="modal-port-pill"><span class="port-dot" style="background:${p.color};box-shadow:0 0 4px ${p.color}"></span>${p.label}</span>`;
+                }).join('');
+        } else {
+            portsEl.innerHTML = '<span class="no-ports">No open services detected</span>';
+        }
+
+        // Note
+        const notes = JSON.parse(localStorage.getItem('netscanner_notes') || '{}');
+        document.getElementById('mNoteInput').value = notes[device.ip] || '';
+        document.getElementById('noteSavedMsg').classList.remove('show');
+
+        // Open overlay
+        document.getElementById('modalOverlay').classList.add('open');
+
+        // Measure latency
+        measureLatency(device.ip);
+    }
+
+    function closeModal(e) {
+        if (e.target === document.getElementById('modalOverlay')) closeModalDirect();
+    }
+    function closeModalDirect() {
+        document.getElementById('modalOverlay').classList.remove('open');
+        currentModalIp = null;
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModalDirect(); });
+
+    async function measureLatency(ip) {
+        const valEl   = document.getElementById('mLatencyVal');
+        const barEl   = document.getElementById('mLatencyBar');
+        const labelEl = document.getElementById('mLatencyLabel');
+        valEl.textContent = 'Measuring...';
+        barEl.style.width = '0%';
+        barEl.style.background = 'var(--accent)';
+        labelEl.textContent = '';
+
+        try {
+            const t0  = performance.now();
+            await fetch(`http://localhost:3000/ping?ip=${ip}`, { signal: AbortSignal.timeout(3000) });
+            const ms  = Math.round(performance.now() - t0);
+            valEl.textContent = `${ms} ms`;
+
+            // colour & bar: <10 green, <50 yellow, <150 orange, else red
+            const pct = Math.min(100, (ms / 150) * 100);
+            const color = ms < 10 ? '#34d399' : ms < 50 ? '#fbbf24' : ms < 150 ? '#fb923c' : '#f87171';
+            barEl.style.width   = `${pct}%`;
+            barEl.style.background = color;
+            labelEl.textContent = ms < 10 ? 'Excellent' : ms < 50 ? 'Good' : ms < 150 ? 'Fair' : 'Poor';
+            labelEl.style.color = color;
+        } catch {
+            valEl.textContent = 'Unreachable';
+            labelEl.textContent = 'Device may be blocking ICMP';
+        }
+    }
+
+    function copyText(elId) {
+        const el = document.getElementById(elId);
+        const text = el.childNodes[0].textContent.trim();
+        navigator.clipboard.writeText(text).then(() => {
+            const btn = el.querySelector('.copy-btn');
+            if (btn) { btn.textContent = '✓'; setTimeout(() => btn.textContent = '⎘', 1200); }
+        });
+    }
+
+    function saveNote() {
+        if (!currentModalIp) return;
+        const notes = JSON.parse(localStorage.getItem('netscanner_notes') || '{}');
+        notes[currentModalIp] = document.getElementById('mNoteInput').value;
+        localStorage.setItem('netscanner_notes', JSON.stringify(notes));
+        const msg = document.getElementById('noteSavedMsg');
+        msg.classList.add('show');
+        setTimeout(() => msg.classList.remove('show'), 2000);
     }
 
     async function pollStatus() {
