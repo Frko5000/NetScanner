@@ -221,6 +221,14 @@ const server = http.createServer(async (req, res) => {
         res.end(JSON.stringify({ started: true }));
     } else if (req.url === '/status') {
         res.end(JSON.stringify(scanState));
+    } else if (req.url && req.url.startsWith('/ping')) {
+        const url   = new URL(req.url, 'http://localhost');
+        const ip    = url.searchParams.get('ip');
+        const isWin = process.platform === 'win32';
+        const cmd   = isWin ? `ping -n 1 -w 500 ${ip}` : `ping -c 1 -W 1 ${ip}`;
+        exec(cmd, (err) => {
+            res.end(JSON.stringify({ reachable: !err }));
+        });
     } else {
         res.statusCode = 404;
         res.end(JSON.stringify({ error: 'Not Found' }));
