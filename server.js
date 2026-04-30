@@ -3,6 +3,18 @@ const { exec } = require('child_process');
 const dns  = require('dns').promises;
 const net  = require('net');
 const os   = require('os');
+const fs   = require('fs');
+
+// ── Notes persistence ─────────────────────────────────────
+const NOTES_FILE = 'notes.json';
+function loadNotes() {
+    try { return JSON.parse(fs.readFileSync(NOTES_FILE, 'utf8')); }
+    catch (_) { return {}; }
+}
+function saveNotes(notes) {
+    fs.writeFileSync(NOTES_FILE, JSON.stringify(notes, null, 2));
+}
+let notesStore = loadNotes();
 
 function getLocalSubnet() {
     const interfaces = os.networkInterfaces();
@@ -214,7 +226,16 @@ async function runScan() {
 
 const server = http.createServer(async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     res.setHeader('Content-Type', 'application/json');
+
+    // preflight
+    if (req.method === 'OPTIONS') {
+        res.statusCode = 204;
+        res.end();
+        return;
+    }
 
     if (req.url === '/scan') {
         runScan();
@@ -228,6 +249,31 @@ const server = http.createServer(async (req, res) => {
         const cmd   = isWin ? `ping -n 1 -w 500 ${ip}` : `ping -c 1 -W 1 ${ip}`;
         exec(cmd, (err) => {
             res.end(JSON.stringify({ reachable: !err }));
+        });
+    } else if (req.url === '/notes' && req.method === 'GET') {
+        res.end(JSON.stringify(notesStore));
+    } else if (req.url === '/notes' && req.method === 'POST') {
+        let body = '';
+        req.on('data', chunk => body += chunk);
+        req.on('end', () => {
+            try {
+                const { ip, note } = JSON.parse(body);
+                if (ip) {
+                    if (note === '' || note == null) {
+                        delete notesStore[ip];
+                    } else {
+                        notesStore[ip] = note;
+                    }
+                    saveNotes(notesStore);
+                    res.end(JSON.stringify({ ok: true }));
+                } else {
+                    res.statusCode = 400;
+                    res.end(JSON.stringify({ error: 'missing ip' }));
+                }
+            } catch {
+                res.statusCode = 400;
+                res.end(JSON.stringify({ error: 'invalid json' }));
+            }
         });
     } else {
         res.statusCode = 404;
