@@ -465,7 +465,7 @@
             </div>
             <div class="modal-section">
                 <div class="modal-section-title">Personal Note</div>
-                <textarea class="note-textarea" id="mNoteInput" placeholder="e.g. Living room TV, Router..."></textarea>
+                <textarea class="note-textarea" id="mNoteInput" placeholder="e.g. Living room TV, Basement Raspberry Pi..."></textarea>
                 <div style="display:flex;align-items:center;margin-top:6px">
                     <button class="note-save-btn" onclick="saveNote()">Save Note</button>
                     <span class="note-saved-msg" id="noteSavedMsg">✓ Saved</span>
@@ -599,9 +599,13 @@
             portsEl.innerHTML = '<span class="no-ports">No open services detected</span>';
         }
 
-        // Note
-        const notes = JSON.parse(localStorage.getItem('netscanner_notes') || '{}');
-        document.getElementById('mNoteInput').value = notes[device.ip] || '';
+        // Note — fetch from server
+        fetch(`http://localhost:3000/notes`)
+            .then(r => r.json())
+            .then(notes => {
+                document.getElementById('mNoteInput').value = notes[device.ip] || '';
+            })
+            .catch(() => {});
         document.getElementById('noteSavedMsg').classList.remove('show');
 
         // Open overlay
@@ -658,14 +662,21 @@
         });
     }
 
-    function saveNote() {
+    async function saveNote() {
         if (!currentModalIp) return;
-        const notes = JSON.parse(localStorage.getItem('netscanner_notes') || '{}');
-        notes[currentModalIp] = document.getElementById('mNoteInput').value;
-        localStorage.setItem('netscanner_notes', JSON.stringify(notes));
-        const msg = document.getElementById('noteSavedMsg');
-        msg.classList.add('show');
-        setTimeout(() => msg.classList.remove('show'), 2000);
+        const note = document.getElementById('mNoteInput').value;
+        try {
+            await fetch('http://localhost:3000/notes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ip: currentModalIp, note })
+            });
+            const msg = document.getElementById('noteSavedMsg');
+            msg.classList.add('show');
+            setTimeout(() => msg.classList.remove('show'), 2000);
+        } catch {
+            alert('Could not save note — is the server running?');
+        }
     }
 
     async function pollStatus() {
